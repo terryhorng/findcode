@@ -8,7 +8,7 @@
 </head>
 <body>
   <h1>泰瑞倉頡－線上查碼</h1>
-  <p class="subtitle">支援CJK URO及Extension A～J及部分日文假名及符號</p>
+  <p class="subtitle">支援 CJK URO 及 Extension A～J 及部分日文假名及符號</p>
 
   <div class="card">
     <div class="input-group">
@@ -16,7 +16,7 @@
       <button id="searchBtn" disabled>查碼</button>
     </div>
 
-    <div id="status" class="status">正在載入碼表，請靜候3秒至30秒...</div>
+    <div id="status" class="status">正在載入碼表，請靜候載入完成，約需3秒至30秒...</div>
 
     <div id="result" class="result">
       <div class="char-display" id="charDisplay"></div>
@@ -24,7 +24,7 @@
     </div>
   </div>
 
-  <footer>資料來源：<a href="https://google.com" target="_blank">泰瑞版小小輸入法－倉頡碼表</a>（2026年6月24日版本）</footer>
+  <footer>資料來源：<a href="https://terryjiun.github.io/posts/Terry-Yong-CJK-Extension-I/" target="_blank">泰瑞版小小輸入法－倉頡碼表</a>（2026年6月24日版本）</footer>
 
   <script>
     // 倉頡字母對照表
@@ -71,17 +71,17 @@
 
     // 判斷所屬字元集（Unicode Block）
     function getUnicodeBlock(codePoint) {
-      if (codePoint >= 0x4E00 && codePoint <= 0x9FFF) return "CJK 統一漢字（基本區）";
-      if (codePoint >= 0x3400 && codePoint <= 0x4DBF) return "CJK 統一漢字擴展 A";
-      if (codePoint >= 0x20000 && codePoint <= 0x2A6DF) return "CJK 統一漢字擴展 B";
-      if (codePoint >= 0x2A700 && codePoint <= 0x2B73F) return "CJK 統一漢字擴展 C";
-      if (codePoint >= 0x2B740 && codePoint <= 0x2B81F) return "CJK 統一漢字擴展 D";
-      if (codePoint >= 0x2B820 && codePoint <= 0x2CEAF) return "CJK 統一漢字擴展 E";
-      if (codePoint >= 0x2CEB0 && codePoint <= 0x2EBEF) return "CJK 統一漢字擴展 F";
-      if (codePoint >= 0x30000 && codePoint <= 0x3134F) return "CJK 統一漢字擴展 G";
-      if (codePoint >= 0x31350 && codePoint <= 0x323AF) return "CJK 統一漢字擴展 H";
-      if (codePoint >= 0x2EBF0 && codePoint <= 0x2EE5F) return "CJK 統一漢字擴展 I";
-      if (codePoint >= 0x323B0 && codePoint <= 0x3347F) return "CJK 統一漢字擴展 J";
+      if (codePoint >= 0x4E00 && codePoint <= 0x9FFF) return "CJK 基本區";
+      if (codePoint >= 0x3400 && codePoint <= 0x4DBF) return "CJK 擴充區A";
+      if (codePoint >= 0x20000 && codePoint <= 0x2A6DF) return "CJK 擴充區B";
+      if (codePoint >= 0x2A700 && codePoint <= 0x2B73F) return "CJK 擴充區C";
+      if (codePoint >= 0x2B740 && codePoint <= 0x2B81F) return "CJK 擴充區D";
+      if (codePoint >= 0x2B820 && codePoint <= 0x2CEAF) return "CJK 擴充區E";
+      if (codePoint >= 0x2CEB0 && codePoint <= 0x2EBEF) return "CJK 擴充區F";
+      if (codePoint >= 0x30000 && codePoint <= 0x3134F) return "CJK 擴充區G";
+      if (codePoint >= 0x31350 && codePoint <= 0x323AF) return "CJK 擴充區H";
+      if (codePoint >= 0x2EBF0 && codePoint <= 0x2EE5F) return "CJK 擴充區I";
+      if (codePoint >= 0x323B0 && codePoint <= 0x3347F) return "CJK 擴充區J";
       if (codePoint >= 0xF900 && codePoint <= 0xFAFF) return "CJK 相容漢字";
       if (codePoint >= 0x2F800 && codePoint <= 0x2FA1F) return "CJK 相容漢字補充";
       return "其他字元集";
