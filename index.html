@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>倉頡查碼</title>
+  <title>泰瑞倉頡－線上查碼</title>
   <style>
     :root {
       --primary: #2563eb;
@@ -164,16 +164,16 @@
   </style>
 </head>
 <body>
-  <h1>倉頡查碼</h1>
-  <p class="subtitle">支援 CJK 基本區 + Extension B～J</p>
+  <h1>泰瑞倉頡－線上查碼</h1>
+  <p class="subtitle">支援 CJK URO + Extension A～J 漢字及部分符號</p>
 
   <div class="card">
     <div class="input-group">
-      <input type="text" id="charInput" placeholder="請輸入漢字" autocomplete="off">
+      <input type="text" id="charInput" placeholder="請輸入單一漢字" autocomplete="off">
       <button id="searchBtn" disabled>查碼</button>
     </div>
 
-    <div id="status" class="status">正在載入碼表...</div>
+    <div id="status" class="status">正在載入碼表，請稍待15秒左右...</div>
 
     <div id="result" class="result">
       <div class="char-display" id="charDisplay"></div>
@@ -181,7 +181,7 @@
     </div>
   </div>
 
-  <footer>資料來源：Chajei.txt（泰瑞倉頡）</footer>
+  <footer>資料來源：<a href="https://terryjiun.github.io/posts/Terry-Yong-CJK-Extension-I/" target="_blank">泰瑞版小小輸入法</a>（最新版泰瑞倉頡碼表）</footer>
 
   <script>
     // 倉頡字母對照表
@@ -206,7 +206,7 @@
         .join("");
     }
 
-    // 正確取出「一個 Unicode 字元」（支援代理對）
+    // 正確取出「一個 Unicode 字元」（支援代理對-Surrogate Pair）
     function getFirstChar(str) {
       const chars = [...str];          // 正確處理 surrogate pair
       return chars.length > 0 ? chars[0] : "";
@@ -324,7 +324,7 @@
     document.getElementById("charInput").addEventListener("input", (e) => {
       const chars = [...e.target.value];
       if (chars.length > 1) {
-        // 只保留最後一個字（支援 Ext-B～J）
+        // 只保留最後一個字（支援 Ext-A～J）
         e.target.value = chars[chars.length - 1];
       }
     });
