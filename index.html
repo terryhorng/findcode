@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>泰瑞倉頡-線上查碼</title>
+  <title>倉頡查碼</title>
   <style>
     :root {
       --primary: #2563eb;
@@ -21,7 +21,7 @@
     }
 
     body {
-      font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", "Noto Sans CJK TC", sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
@@ -156,11 +156,6 @@
       padding: 1rem;
     }
 
-    .loading {
-      text-align: center;
-      color: var(--muted);
-    }
-
     footer {
       margin-top: 2rem;
       font-size: 0.8rem;
@@ -169,12 +164,12 @@
   </style>
 </head>
 <body>
-  <h1>泰瑞倉頡-線上查碼</h1>
-  <p class="subtitle">輸入單一漢字，查詢所有倉頡編碼</p>
+  <h1>倉頡查碼</h1>
+  <p class="subtitle">支援 CJK 基本區 + Extension B～J</p>
 
   <div class="card">
     <div class="input-group">
-      <input type="text" id="charInput" maxlength="1" placeholder="請輸入漢字" autocomplete="off">
+      <input type="text" id="charInput" placeholder="請輸入漢字" autocomplete="off">
       <button id="searchBtn" disabled>查碼</button>
     </div>
 
@@ -199,7 +194,7 @@
       z: "重"
     };
 
-    // 字元 → 編碼陣列 的對應表
+    // 字元 → 編碼陣列
     let codeMap = new Map();
 
     // 把英文字母編碼轉成倉頡字母
@@ -209,6 +204,12 @@
         .split("")
         .map(c => radicalMap[c] || c)
         .join("");
+    }
+
+    // 正確取出「一個 Unicode 字元」（支援代理對）
+    function getFirstChar(str) {
+      const chars = [...str];          // 正確處理 surrogate pair
+      return chars.length > 0 ? chars[0] : "";
     }
 
     // 載入並解析 Chajei.txt
@@ -222,10 +223,8 @@
 
         for (const line of lines) {
           const trimmed = line.trim();
-          // 跳過空行與註解
           if (!trimmed || trimmed.startsWith("##")) continue;
 
-          // 格式：編碼 字元（中間用空白分隔）
           const parts = trimmed.split(/\s+/);
           if (parts.length < 2) continue;
 
@@ -235,7 +234,6 @@
           if (!codeMap.has(char)) {
             codeMap.set(char, []);
           }
-          // 避免重複編碼
           if (!codeMap.get(char).includes(code)) {
             codeMap.get(char).push(code);
           }
@@ -252,14 +250,14 @@
     // 執行查詢
     function search() {
       const input = document.getElementById("charInput");
-      const char = input.value.trim();
+      const raw = input.value.trim();
+      const char = getFirstChar(raw);   // 正確取得單一 Unicode 字元
 
       const resultEl = document.getElementById("result");
       const charDisplay = document.getElementById("charDisplay");
       const codeList = document.getElementById("codeList");
       const status = document.getElementById("status");
 
-      // 清空舊結果
       codeList.innerHTML = "";
       resultEl.classList.remove("show");
 
@@ -268,25 +266,30 @@
         return;
       }
 
-      if (char.length > 1) {
-        status.textContent = "請只輸入單一漢字";
-        return;
+      // 如果使用者貼了多個字，提醒並只用第一個
+      if ([...raw].length > 1) {
+        status.textContent = `偵測到多個字，已使用第一個字「${char}」查詢`;
       }
 
       const codes = codeMap.get(char);
 
       if (!codes || codes.length === 0) {
-        status.textContent = "";
+        status.textContent = status.textContent.includes("偵測到") ? status.textContent : "";
         charDisplay.textContent = char;
         codeList.innerHTML = `<div class="not-found">查無此字的倉頡編碼</div>`;
         resultEl.classList.add("show");
         return;
       }
 
-      status.textContent = `找到 ${codes.length} 組編碼`;
+      if (!status.textContent.includes("偵測到")) {
+        status.textContent = `找到 ${codes.length} 組編碼`;
+      } else {
+        status.textContent += `，找到 ${codes.length} 組編碼`;
+      }
+
       charDisplay.textContent = char;
 
-      // 依編碼長度排序（短的在前）
+      // 依編碼長度排序
       codes.sort((a, b) => a.length - b.length || a.localeCompare(b));
 
       for (const code of codes) {
@@ -317,11 +320,12 @@
       }
     });
 
-    // 只允許輸入一個字元（自動取代）
+    // 輸入時自動只保留最後一個完整的 Unicode 字元
     document.getElementById("charInput").addEventListener("input", (e) => {
-      const val = e.target.value;
-      if (val.length > 1) {
-        e.target.value = val.slice(-1); // 只保留最後一個字
+      const chars = [...e.target.value];
+      if (chars.length > 1) {
+        // 只保留最後一個字（支援 Ext-B～J）
+        e.target.value = chars[chars.length - 1];
       }
     });
 
