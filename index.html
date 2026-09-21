@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>泰瑞倉頡－線上查碼</title>
+  <title>泰瑞倉頡-線上查碼</title>
   <style>
     :root {
       --primary: #2563eb;
@@ -164,8 +164,8 @@
   </style>
 </head>
 <body>
-  <h1>泰瑞倉頡－線上查碼</h1>
-  <p class="subtitle">支援 CJK URO + Extension A～J 漢字及部分符號</p>
+  <h1>泰瑞倉頡-線上查碼</h1>
+  <p class="subtitle">支援 CJK URO + Extension A～J 的漢字及部分日文假名及符號</p>
 
   <div class="card">
     <div class="input-group">
@@ -173,7 +173,7 @@
       <button id="searchBtn" disabled>查碼</button>
     </div>
 
-    <div id="status" class="status">正在載入碼表，請稍待15秒左右...</div>
+    <div id="status" class="status">正在載入碼表，請靜待5秒左右...</div>
 
     <div id="result" class="result">
       <div class="char-display" id="charDisplay"></div>
@@ -181,7 +181,7 @@
     </div>
   </div>
 
-  <footer>資料來源：<a href="https://terryjiun.github.io/posts/Terry-Yong-CJK-Extension-I/" target="_blank">泰瑞版小小輸入法</a>（最新版泰瑞倉頡碼表）</footer>
+  <footer>資料來源：Chajei.txt（<a href="https://terryjiun.github.io" target="_blank">泰瑞倉頡</a>）</footer>
 
   <script>
     // 倉頡字母對照表
@@ -206,10 +206,19 @@
         .join("");
     }
 
-    // 正確取出「一個 Unicode 字元」（支援代理對-Surrogate Pair）
+    // 正確取出「一個 Unicode 字元」（支援代理對 Surrogate Pair）
     function getFirstChar(str) {
-      const chars = [...str];          // 正確處理 surrogate pair
+      const chars = [...str];
       return chars.length > 0 ? chars[0] : "";
+    }
+
+    // 強制只保留最後一個完整的 Unicode 字元
+    function forceSingleChar() {
+      const inputEl = document.getElementById("charInput");
+      const chars = [...inputEl.value];
+      if (chars.length > 1) {
+        inputEl.value = chars[chars.length - 1];
+      }
     }
 
     // 載入並解析 Chajei.txt
@@ -251,7 +260,7 @@
     function search() {
       const input = document.getElementById("charInput");
       const raw = input.value.trim();
-      const char = getFirstChar(raw);   // 正確取得單一 Unicode 字元
+      const char = getFirstChar(raw);
 
       const resultEl = document.getElementById("result");
       const charDisplay = document.getElementById("charDisplay");
@@ -266,7 +275,7 @@
         return;
       }
 
-      // 如果使用者貼了多個字，提醒並只用第一個
+      // 如果貼了多個字，提示並使用第一個
       if ([...raw].length > 1) {
         status.textContent = `偵測到多個字，已使用第一個字「${char}」查詢`;
       }
@@ -274,7 +283,9 @@
       const codes = codeMap.get(char);
 
       if (!codes || codes.length === 0) {
-        status.textContent = status.textContent.includes("偵測到") ? status.textContent : "";
+        if (!status.textContent.includes("偵測到")) {
+          status.textContent = "";
+        }
         charDisplay.textContent = char;
         codeList.innerHTML = `<div class="not-found">查無此字的倉頡編碼</div>`;
         resultEl.classList.add("show");
@@ -289,7 +300,7 @@
 
       charDisplay.textContent = char;
 
-      // 依編碼長度排序
+      // 依編碼長度排序（短的在前）
       codes.sort((a, b) => a.length - b.length || a.localeCompare(b));
 
       for (const code of codes) {
@@ -311,23 +322,37 @@
       resultEl.classList.add("show");
     }
 
-    // 事件綁定
-    document.getElementById("searchBtn").addEventListener("click", search);
+    // ===== 事件綁定 =====
+    const inputEl = document.getElementById("charInput");
+    let isComposing = false; // 是否正在輸入法組字中
 
-    document.getElementById("charInput").addEventListener("keydown", (e) => {
+    // 開始組字
+    inputEl.addEventListener("compositionstart", () => {
+      isComposing = true;
+    });
+
+    // 結束組字
+    inputEl.addEventListener("compositionend", () => {
+      isComposing = false;
+      // 組字結束後再清理，確保只留一個漢字
+      forceSingleChar();
+    });
+
+    // 一般輸入事件
+    inputEl.addEventListener("input", () => {
+      // 正在組字時不要干預
+      if (isComposing) return;
+      forceSingleChar();
+    });
+
+    // 按 Enter 查詢
+    inputEl.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         search();
       }
     });
 
-    // 輸入時自動只保留最後一個完整的 Unicode 字元
-    document.getElementById("charInput").addEventListener("input", (e) => {
-      const chars = [...e.target.value];
-      if (chars.length > 1) {
-        // 只保留最後一個字（支援 Ext-A～J）
-        e.target.value = chars[chars.length - 1];
-      }
-    });
+    document.getElementById("searchBtn").addEventListener("click", search);
 
     // 頁面載入時讀取碼表
     loadCodeTable();
